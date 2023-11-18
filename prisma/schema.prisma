@@ -26,6 +26,13 @@ model Post {
     @@index([name])
 }
 
+model forms {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
