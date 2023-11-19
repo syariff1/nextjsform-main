@@ -1,79 +1,42 @@
 import { useSession } from 'next-auth/react';
+import { useRouter } from "next/router";
+import { api } from "~/utils/api";
 import { useState } from 'react';
 import Head from "next/head";
 import Header from "../components/Header";
 
 
-type FormData = {
-  id: string,
-  workout_title: string;
-  completion_date: string;
-  workout_type: string;
-  muscleGroups: string[];
-  Others_framework?: string;
-  updates: 'yes' | 'no' | 'maybe' | 'Others';
-  Others_option?: string;
-  difficulty_rating: number;
-  ongoing: boolean;
-  form_image: FileList | null;
-  
-};
+export default function CreateForm() {
+  const router = useRouter(); // Importing useRouter hook for navigation
+    const formsCreateMutation = api.form.formsCreate.useMutation();
+    const [workoutTitle, setWorkoutTitle] = useState('');
+  const [completionDate, setCompletionDate] = useState(new Date()); // Assuming completion_date is of type date
+  const [workoutType, setWorkoutType] = useState('');
+  const [checkboxes, setCheckboxes] = useState([]);
+  const [updates, setUpdates] = useState('');
+  const [difficultyRating, setDifficultyRating] = useState(0);
+  const [ongoing, setOngoing] = useState(false);
+  const [formImage, setFormImage] = useState('');
 
-const ProjectForm: React.FC = () => {
-  const { data: session } = useSession();
-  const [formData, setFormData] = useState<FormData>({
-    id: session?.user?.id || '',
-    workout_title: '',
-    muscleGroups: [],
-    completion_date: '',
-    workout_type: 'dog', 
-    updates: 'yes',
-    difficulty_rating: 0,
-    ongoing: false,
-    form_image: null,
-    
-  });
-
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-    // Update the placeholder title in h2 when the workout_title changes
-    if (name === 'workout_title') {
-      setFormData((prevData) => ({ ...prevData, workout_title: value }));
+  const handleCreateForm = async () => {
+    try {
+      await formsCreateMutation.mutateAsync({
+        workout_title: workoutTitle,  // Corrected field names
+        completion_date: completionDate,
+        workout_type: workoutType,
+        checkboxes: checkboxes,
+        updates: updates,
+        difficulty_rating: difficultyRating,
+        ongoing: ongoing,
+        form_image: formImage,
+      }).then((result) => {
+        router.push('/'); // Navigate back to the index page
+      });
+    } catch (err) {
+      console.error("Error creating form:", err);
     }
   };
   
-
-
-   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-
-    setFormData((prevData) => {
-      // If the checkbox is checked, add the muscle group to the array
-      // If it's unchecked, remove it from the array
-      const updatedMuscleGroups = checked
-        ? [...prevData.muscleGroups, name]
-        : prevData.muscleGroups.filter((group) => group !== name);
-
-      return { ...prevData, muscleGroups: updatedMuscleGroups };
-    });
-  };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'project_image' | 'project_brief') => {
-    const files = e.target.files;
-    setFormData((prevData) => ({ ...prevData, [fileType]: files }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    console.log('Form data submitted:', formData);
-  };
-  const handleDateChange = (date: Date | null) => {
-    setFormData((prevData) => ({ ...prevData, completion_date: date ? date.toISOString() : '' }));
-  };
-
 
   return (
     <>
@@ -84,20 +47,18 @@ const ProjectForm: React.FC = () => {
     </Head>
     <Header />
     <main className="flex justify-center items-center py-7 mx-10">
-    <form className="w-2/3 space-y-6" onSubmit={handleSubmit}>
+    <form className="w-2/3 space-y-6">
 
       <div className="space-y-2 mt-5">
         <label className="text-4xl font-large bold leading-none" htmlFor="workout_title">
-          {formData.workout_title || 'Workout Title'}
+          {workoutTitle || 'Workout Title'}
         </label>
         <input
           type="text"
-          id="workout_title"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder={`Enter ${formData.workout_title ? 'additional ' : ''}workout title`}
-          name="workout_title"
-          value={formData.workout_title}
-          onChange={(e) => handleChange(e)}
+          placeholder={`Enter ${workoutTitle ? 'additional ' : ''}workout title`}
+          value={workoutTitle}
+          onChange={(e) => setWorkoutTitle(e.target.value)}
         />
       </div>
       <div className="space-y-2">
@@ -107,9 +68,8 @@ const ProjectForm: React.FC = () => {
           <div className="mt-2">
             <input
               type="date"
-              id="completion_date"
               name="completion_date"
-              value={formData.completion_date}
+              value={completionDate.toISOString()};
               onChange={(e) => handleChange(e)}
               className="w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               placeholder="Select completion date"
@@ -315,5 +275,3 @@ const ProjectForm: React.FC = () => {
   </>
 );
 };
-
-export default ProjectForm;

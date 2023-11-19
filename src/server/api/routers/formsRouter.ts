@@ -19,7 +19,7 @@ export const formRouter = createTRPCRouter({
   .input(
     z.object({
       workout_title: z.string(),
-      completion_date: z.string(), 
+      completion_date: z.date(), 
       workout_type: z.string(),
       checkboxes: z.array(z.string()), 
       updates: z.string(),
@@ -54,7 +54,7 @@ export const formRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         workout_title: z.string().optional(),
-      completion_date: z.string().optional(), 
+      completion_date: z.date().optional(), 
       workout_type: z.string().optional(),
       checkboxes: z.array(z.string()).optional(), 
       updates: z.string().optional(),
