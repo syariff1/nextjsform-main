@@ -28,9 +28,19 @@ model Post {
 
 model forms {
   id          String      @id @default(cuid())
-  title       String
+  form_title String
   description String
-  createdAt   DateTime @default(now())
+  completion_date DateTime @default(now())
+  form_type String
+  updates String
+  custom_option String
+  difficulty_rating Int
+  ongoing Boolean
+  form_image String 
+  checkbox1 Boolean
+  checkbox2 Boolean
+  checkbox3 Boolean
+  checkbox4 Boolean
 }
 
 // Necessary for Next auth

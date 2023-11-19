@@ -1,50 +1,52 @@
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 
 
 type FormData = {
-  form_title: string;
+  id: string,
+  workout_title: string;
   description: string;
   completion_date: string;
-  completion_time?: string;
-  form_type: string;
-  custom_framework?: string;
-  updates: 'yes' | 'no' | 'maybe' | 'Custom';
-  custom_option?: string;
+  workout_type: string;
+  Others_framework?: string;
+  updates: 'yes' | 'no' | 'maybe' | 'Others';
+  Others_option?: string;
   difficulty_rating: number;
   ongoing: boolean;
   form_image: FileList | null;
-  form_brief: FileList | null;
   checkbox1: boolean;
   checkbox2: boolean;
   checkbox3: boolean;
   checkbox4: boolean;
 };
+
 const ProjectForm: React.FC = () => {
+  const { data: session } = useSession();
   const [formData, setFormData] = useState<FormData>({
-    form_title: '',
+    id: session?.user?.id || '',
+    workout_title: '',
     description: '',
     completion_date: '',
-    completion_time: '',
-    form_type: 'school_project', // Default project type
+    workout_type: 'dog', 
     updates: 'yes',
     difficulty_rating: 0,
     ongoing: false,
     form_image: null,
-    form_brief: null,
     checkbox1: false,
     checkbox2: false,
     checkbox3: false,
     checkbox4: false,
   });
 
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
 
-    // Update the placeholder title in h2 when the form_title changes
-    if (name === 'form_title') {
-      setFormData((prevData) => ({ ...prevData, form_title: value }));
+    // Update the placeholder title in h2 when the workout_title changes
+    if (name === 'workout_title') {
+      setFormData((prevData) => ({ ...prevData, workout_title: value }));
     }
   };
 
@@ -75,22 +77,22 @@ const ProjectForm: React.FC = () => {
     <form className="w-2/3 space-y-6" onSubmit={handleSubmit}>
 
       <div className="space-y-2 mt-5">
-        <label className="text-4xl font-large bold leading-none" htmlFor="form_title">
-          {formData.form_title || 'Form Title'}
+        <label className="text-4xl font-large bold leading-none" htmlFor="workout_title">
+          {formData.workout_title || 'Workout Title'}
         </label>
         <input
           type="text"
-          id="form_title"
+          id="workout_title"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder={`Enter ${formData.form_title ? 'additional ' : ''}form title`}
-          name="form_title"
-          value={formData.form_title}
+          placeholder={`Enter ${formData.workout_title ? 'additional ' : ''}workout title`}
+          name="workout_title"
+          value={formData.workout_title}
           onChange={(e) => handleChange(e)}
         />
       </div>
       <div className="space-y-2">
           <label className="text-lg font-medium leading-none" htmlFor="completion_date">
-            Completion Date
+            Date of Workout Completed
           </label>
           <div className="mt-2">
             <input
@@ -106,24 +108,26 @@ const ProjectForm: React.FC = () => {
         </div>
 
       <div className="space-y-2 mt-5">
-        <label className="text-lg font-medium leading-none" htmlFor="form_type">
-          Favorite Pet
+        <label className="text-lg font-medium leading-none" htmlFor="workout_type">
+          Type of workout
         </label>
         <select
-          id="form_type"
-          name="form_type"
+          id="workout_type"
+          name="workout_type"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          value={formData.form_type}
+          value={formData.workout_type}
           onChange={(e) => handleChange(e)}
         >
-          <option value="Dog">Dog</option>
-          <option value="Cat">Cat</option>
-          {/* Add more project types as needed */}
+          <option value="Cardio">Cardio</option>
+          <option value="Weightlifting">Weightlifting</option>
+          <option value="Bodylifting">Bodylifting</option>
+          <option value="Crossfit">Crossfit</option>
+
         </select>
       </div>
 
       <div className="space-y-2 mt-5">
-        <label className="text-lg font-medium leading-none">Birds</label>
+        <label className="text-lg font-medium leading-none">Muscles hit</label>
         <div className="space-y-2">
           <label className="flex items-center">
             <input
@@ -132,7 +136,7 @@ const ProjectForm: React.FC = () => {
               checked={formData.checkbox1}
               onChange={(e) => handleCheckboxChange(e)}
             />
-            Chicken
+            Leg
           </label>
           <label className="flex items-center">
             <input
@@ -141,7 +145,7 @@ const ProjectForm: React.FC = () => {
               checked={formData.checkbox2}
               onChange={(e) => handleCheckboxChange(e)}
             />
-            Duck
+            Upper Body
           </label>
           <label className="flex items-center">
             <input
@@ -150,7 +154,7 @@ const ProjectForm: React.FC = () => {
               checked={formData.checkbox3}
               onChange={(e) => handleCheckboxChange(e)}
             />
-            Swan
+            Lower Body
           </label>
           <label className="flex items-center">
             <input
@@ -159,13 +163,13 @@ const ProjectForm: React.FC = () => {
               checked={formData.checkbox4}
               onChange={(e) => handleCheckboxChange(e)}
             />
-            Pigeon
+            Abs
           </label>
         </div>
       </div>
 
       <div className="space-y-2 mt-5">
-        <label className="text-lg bold font-medium leading-none">Would subscribe for daily updates? </label>
+        <label className="text-lg bold font-medium leading-none">Do you think this workout is easy? </label>
         <div className="flex flex-col">
           <label className="mb-2">
             <input
@@ -201,28 +205,25 @@ const ProjectForm: React.FC = () => {
             <input
               type="radio"
               name="updates"
-              value="Custom"
-              checked={formData.updates === 'Custom'}
+              value="Others"
+              checked={formData.updates === 'Others'}
               onChange={(e) => handleChange(e)}
             />
-            {formData.updates === 'Custom' ? formData.custom_option : 'Custom'}
+            {formData.updates === 'Others' ? formData.Others_option : 'Others'}
           </label>
         </div>
       </div>
 
       <div className="space-y-2 mt-5">
-        <label className="text-sm font-medium leading-none" htmlFor="custom_option">
-          Custom Option
-        </label>
         <input
           type="text"
-          id="custom_option"
+          id="Others_option"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="Enter custom option"
-          name="custom_option"
-          value={formData.custom_option}
+          placeholder="Enter Others option"
+          name="Others_option"
+          value={formData.Others_option}
           onChange={(e) => handleChange(e)}
-          disabled={formData.updates !== 'Custom'}
+          disabled={formData.updates !== 'Others'}
         />
       </div>
 
@@ -246,7 +247,7 @@ const ProjectForm: React.FC = () => {
 
       <div className="space-y-2 mt-5">
         <label className="flex items-center">
-          <span className="relative ml-2">Ongoing Pet</span>
+          <span className="relative ml-2">Would you do this workout again?</span>
           <input
             type="checkbox"
             name="ongoing"
@@ -257,7 +258,7 @@ const ProjectForm: React.FC = () => {
           <span
             className={`${
               formData.ongoing ?  'bg-gray-700' : 'bg-gray-300' 
-            } relative ml-auto inline-block h-6 w-11  rounded-full transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700`}
+            } relative ml-auto inline-block h-5 w-11  rounded-full transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700`}
           >
             {/* Switch handle */}
             <span
@@ -271,7 +272,7 @@ const ProjectForm: React.FC = () => {
 
       <div className="space-y-2 mt-5">
         <label className="text-sm font-medium leading-none" htmlFor="project_image">
-          Pet Image
+          Postworkout Selfie
         </label>
         <div className="mt-2 flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 text-center">
           {/* File upload input for project image */}

@@ -1,8 +1,16 @@
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 const Header = () => {
+  const { data: session } = useSession(); // Ensure you are using useSession hook correctly
+  const [isMenuOpen, setMenuOpen] = useState(false);
+
+  const handleToggleMenu = () => {
+    setMenuOpen(!isMenuOpen);
+  };
+
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' }); // Redirect to the home page after sign-out
+    await signOut({ callbackUrl: '/' });
   };
 
   return (
@@ -14,27 +22,33 @@ const Header = () => {
       </button>
       <p>Dashboard</p>
       <div className="flex flex-col items-center justify-end gap-4">
-        <div className="text-center text-2xl text-white">
+        <div className="text-center text-2xl text-black">
           <div>
             <button
               type="button"
-              id="radix-:r2:"
+              id="profile-menu"
               aria-haspopup="menu"
-              aria-expanded="true"
-              data-state="open"
-              aria-controls="radix-:r3:"
+              aria-expanded={isMenuOpen}
+              onClick={handleToggleMenu}
             >
               <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full">
                 <img
                   className="aspect-square h-full w-full"
-                  src="https://lh3.googleusercontent.com/a/ACg8ocI7eL1PblThRwDNCrfJB2ENQMV8xCDqOVbrltMuj40vlGY=s96-c"
+                  src={session?.user?.image ?? '/fallback-image-url'} // Provide a fallback image URL
                   alt="Profile"
                 />
               </span>
             </button>
-          </div>
-          <div>
-            <button onClick={handleSignOut}>Sign Out</button>
+            {isMenuOpen && session && session.user && (
+              <div className="absolute top-14 right-0 bg-white p-4 rounded shadow-md">
+                {/* Display user information */}
+                <p>Name: {session.user.name ?? 'Unknown'}</p>
+                <p>Email: {session.user.email ?? 'Unknown'}</p>
+
+                {/* Sign-out button */}
+                <button onClick={handleSignOut}>Sign Out</button>
+              </div>
+            )}
           </div>
         </div>
       </div>

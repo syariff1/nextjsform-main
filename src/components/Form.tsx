@@ -11,7 +11,20 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
   const [data, setData] = useState<Form>({
     id: form.id,
     description: form.description ?? "",
-    title: form.title ?? "",
+    workout_title: form.workout_title ?? "",
+   
+  completion_date: form.completion_date ?? "",
+  workout_type: form.workout_type ?? "",
+  others_framework: form.others_framework ?? "",
+  updates:form.updates ?? "",
+  others_option: form.others_option ?? "",
+  difficulty_rating: form.difficulty_rating ?? "",
+  ongoing: form.ongoing ?? "",
+  form_image: form.form_image ?? "",
+  checkbox1: form.checkbox1 ?? "",
+  checkbox2: form.checkbox2 ?? "",
+  checkbox3: form.checkbox3 ?? "",
+  checkbox4: form.checkbox4 ?? "",
   });
   const formContainer = useRef<HTMLDivElement>(null);
   const formDeleteMutation = api.form.formsDelete.useMutation();
@@ -20,7 +33,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
     function handleClickOutside(event: MouseEvent) {
       if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
         setIsEditing(false);
-        formEditMutation.mutateAsync({id: data.id,description: data.description,title: data.title}).then((result)=>{
+        formEditMutation.mutateAsync({id: data.id,description: data.description,title: data.workout_title}).then((result)=>{
           console.log(result);
         })
       }
@@ -62,7 +75,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
           <input
             className="w-full cursor-text p-2 font-bold"
             name="title"
-            value={data.title}
+            value={data.workout_title}
             disabled={!isEditing}
             onChange={handleDataChange}
           />
