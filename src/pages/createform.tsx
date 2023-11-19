@@ -288,7 +288,7 @@ const ProjectForm: React.FC = () => {
       </div>
 
       <div className="flex items-center justify-center gap-x-3 mt-5">
-        <a className="inline-flex items-center justify-center rounded-md text-sm font-medium" href="/">
+        <a className="inline-flex items-center justify-center rounded-md text-sm font-medium" href="/home">
           Discard
         </a>
         <button
