@@ -16,19 +16,32 @@ export const formRouter = createTRPCRouter({
     return forms;
   }),
   formsCreate: publicProcedure
-    .input(
-      z.object({
-        title: z.string(),
-        description: z.string(),
-      }),
-    )
+  .input(
+    z.object({
+      workout_title: z.string(),
+      completion_date: z.string(), 
+      workout_type: z.string(),
+      checkboxes: z.array(z.string()), 
+      updates: z.string(),
+      difficulty_rating: z.number(), 
+      ongoing: z.boolean(), 
+      form_image: z.string(),
+    }),
+  )
     .mutation(async (opts) => {
       try {
         const { input } = opts;
         const newForm = await db.forms.create({
           data: {
-            title: input.title,
-            description: input.description,
+            workout_title: input.workout_title,
+            completion_date: input.completion_date,
+            workout_type: input.workout_type,
+            checkboxes: input.checkboxes,  // Corrected assignment
+            updates: input.updates,
+            difficulty_rating: input.difficulty_rating,
+            ongoing: input.ongoing,
+            form_image: input.form_image,
+  
           },
         });
         return newForm;
@@ -40,8 +53,14 @@ export const formRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        title: z.string().optional(),
-        description: z.string().optional(),
+        workout_title: z.string().optional(),
+      completion_date: z.string().optional(), 
+      workout_type: z.string().optional(),
+      checkboxes: z.array(z.string()).optional(), 
+      updates: z.string().optional(),
+      difficulty_rating: z.number().optional(), 
+      ongoing: z.boolean().optional(), 
+      form_image: z.string().optional(),
       }),
     )
     .mutation(async (opts) => {
@@ -51,8 +70,15 @@ export const formRouter = createTRPCRouter({
         const updatedForm = await db.forms.update({
           where: { id: input.id },
           data: {
-            title: input.title,
-            description: input.description,
+            workout_title: input.workout_title,
+            completion_date: input.completion_date,
+            workout_type: input.workout_type,
+            checkboxes: input.checkboxes,  // Corrected assignment
+            updates: input.updates,
+            difficulty_rating: input.difficulty_rating,
+            ongoing: input.ongoing,
+            form_image: input.form_image,
+  
           },
         });
         return updatedForm;

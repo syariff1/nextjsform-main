@@ -10,22 +10,16 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [data, setData] = useState<Form>({
     id: form.id,
-    description: form.description ?? "",
-    workout_title: form.workout_title ?? "",
-   
-  completion_date: form.completion_date ?? "",
-  workout_type: form.workout_type ?? "",
-  others_framework: form.others_framework ?? "",
-  updates:form.updates ?? "",
-  others_option: form.others_option ?? "",
-  difficulty_rating: form.difficulty_rating ?? "",
-  ongoing: form.ongoing ?? "",
-  form_image: form.form_image ?? "",
-  checkbox1: form.checkbox1 ?? "",
-  checkbox2: form.checkbox2 ?? "",
-  checkbox3: form.checkbox3 ?? "",
-  checkbox4: form.checkbox4 ?? "",
+    workout_title: form.workout_title || "",
+    completion_date: form.completion_date || new Date(),
+    workout_type: form.workout_type || "",
+    checkboxes: form.checkboxes || [],
+    updates: form.updates || "", // Handle the updates field here
+    difficulty_rating: form.difficulty_rating || 0,
+    ongoing: form.ongoing || false,
+    form_image: form.form_image || "",
   });
+
   const formContainer = useRef<HTMLDivElement>(null);
   const formDeleteMutation = api.form.formsDelete.useMutation();
   const formEditMutation = api.form.formsUpdate.useMutation();
@@ -33,7 +27,18 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
     function handleClickOutside(event: MouseEvent) {
       if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
         setIsEditing(false);
-        formEditMutation.mutateAsync({id: data.id,description: data.description,title: data.workout_title}).then((result)=>{
+      
+        formEditMutation.mutateAsync({
+          id: data.id,
+          workout_title: data.workout_title,
+          completion_date: data.completion_date,
+          workout_type: data.workout_type,
+          checkboxes: data.checkboxes,  // Assuming checkboxes is an array
+          updates: data.updates,
+          difficulty_rating: data.difficulty_rating,
+          ongoing: data.ongoing,
+          form_image: data.form_image,
+        }).then((result) => {
           console.log(result);
         })
       }
@@ -74,7 +79,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
         <div className="flex items-center justify-between space-x-8">
           <input
             className="w-full cursor-text p-2 font-bold"
-            name="title"
+            name="workout_title"
             value={data.workout_title}
             disabled={!isEditing}
             onChange={handleDataChange}
@@ -91,7 +96,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
             />
           </div>
         </div>
-        <textarea className="text-sm text-gray-600" name="description" value={data.description} disabled={!isEditing} onChange={handleDataChange} />
+       
       </div>
     </>
   );

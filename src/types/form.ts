@@ -1,20 +1,13 @@
-
-interface Form  {
-  id : string,
+interface Form {
+  id: string;
   workout_title: string;
-  description: string;
-  completion_date: string;
+  completion_date: Date;
   workout_type: string;
-  others_framework: string;
-  updates: 'yes' | 'no' | 'maybe' | 'Custom';
-  others_option: string;
+  checkboxes: string[];
+  updates: string;
   difficulty_rating: number;
   ongoing: boolean;
-  form_image: FileList;
-  checkbox1: boolean;
-  checkbox2: boolean;
-  checkbox3: boolean;
-  checkbox4: boolean;
-};
+  form_image: string;
+}
 
 export default Form;
