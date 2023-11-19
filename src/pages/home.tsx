@@ -66,8 +66,8 @@ export default function home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header />
-      <main>
-      <div className="flex min-h-screen flex-col items-center justify-start">
+      
+      <main className="flex min-h-screen flex-col items-center justify-start">
           <div className="w-full max-w-3xl border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
             <div className="-ml-4 -mt-4 flex flex-wrap items-center justify-between sm:flex-nowrap">
               <div className="ml-4 mt-4 flex w-full flex-col">
@@ -84,8 +84,7 @@ export default function home() {
           </div>
   
           <Forms forms={forms} />
-        </div>
-      </main>
+        </main>
        
       </>
     );
