@@ -5,6 +5,7 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { Toaster, toast } from "sonner";
 import { api } from "~/utils/api";
+import { useRouter } from "next/router";
 
 const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -49,6 +50,12 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [formContainer,data]);
+  const router = useRouter();
+  const handlePencilClick = () => {
+
+    // Push to another page
+    router.push('/editform'); 
+  };
 
   
   const handleDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -76,18 +83,17 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
     <>
       <Toaster />
       <div ref={formContainer} className="flex w-full max-w-sm flex-col rounded-lg border p-4 shadow-xl">
-        <div className="flex items-center justify-between space-x-8">
+        <a className="flex items-center justify-between space-x-8">
           <input
             className="w-full cursor-text p-2 font-bold"
             name="workout_title"
             value={data.workout_title}
-            disabled={!isEditing}
-            onChange={handleDataChange}
+            
           />
           <div className="flex items-center justify-center space-x-1">
           <PencilIcon
               className="h-4 w-4 cursor-pointer transition-all hover:text-gray-600"
-              onClick={() => {setIsEditing(!isEditing);}}
+              onClick={() => {handlePencilClick}}
               onFocus={(e) => toast.success("Focus!")}
             />
             <TrashIcon
@@ -95,7 +101,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
               onClick={() => handleDelete(form.id)}
             />
           </div>
-        </div>
+        </a>
        
       </div>
     </>

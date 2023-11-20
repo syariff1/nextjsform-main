@@ -1,11 +1,11 @@
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Head from "next/head";
 import Header from "../components/Header";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { UploadDropzone } from "~/utils/uploadthing";
-import { boolean } from 'zod';
+import "@uploadthing/react/styles.css";
 
 
 type FormData = {
@@ -35,6 +35,7 @@ const ProjectForm: React.FC = () => {
     completion_date: new Date(),
     workout_type: 'cardio',
     checkboxes: [],
+    Others_option: '',
     updates: '',
     difficulty_rating: 0,
     ongoing: false,
@@ -68,7 +69,6 @@ const ProjectForm: React.FC = () => {
       ...prevData,
       form_image: imageUrl || '', // Use empty string if URL is not available
     }));
-
     // Additional logic or state updates if needed
     alert('Upload Completed');
   };
@@ -78,19 +78,39 @@ const ProjectForm: React.FC = () => {
   };
 
 
+  const [updatesOption, setUpdatesOption] = useState('no'); // Maintain a separate state for radio button selection
+  const [othersOptionInput, setOthersOptionInput] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: name === 'difficulty_rating' ? parseInt(value, 10) : value,
-    }));
 
     // Update the placeholder title in h2 when the workout_title changes
     if (name === 'workout_title') {
       setFormData((prevData) => ({ ...prevData, workout_title: value }));
     }
+
+    if (name === 'updates') {
+      setUpdatesOption(value); // Update the separate state for radio button selection
+      if (value === 'Others') {
+        setOthersOptionInput(formData.Others_option || ''); // Use an empty string if Others_option is undefined
+        setFormData((prevData) => ({ ...prevData, updates: 'Others' }));
+      } else {
+        setFormData((prevData) => ({ ...prevData, updates: value }));
+      }
+    } else if (name === 'Others_option') {
+      setOthersOptionInput(value);
+      // Update 'updates' when Others_option changes (if 'Others' is selected)
+      if (updatesOption === 'Others') {
+        setFormData((prevData) => ({ ...prevData, updates: value }));
+      }
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: name === 'difficulty_rating' ? parseInt(value, 10) : value,
+      }));
+    }
   };
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
 
@@ -125,10 +145,7 @@ const ProjectForm: React.FC = () => {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'project_image' | 'project_brief') => {
-    const files = e.target.files;
-    setFormData((prevData) => ({ ...prevData, [fileType]: files }));
-  };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -280,24 +297,24 @@ const ProjectForm: React.FC = () => {
                   type="radio"
                   name="updates"
                   value="Others"
-                  checked={formData.updates === 'Others'}
+                  checked={updatesOption === 'Others'}
                   onChange={(e) => handleChange(e)}
                 />
                 <span className="ml-2">
-                  {formData.updates === 'Others' ? (
+                  {updatesOption === 'Others' ? (
                     <input
                       type="text"
                       id="Others_option"
                       className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       placeholder="Enter Others"
                       name="Others_option"
-                      value={formData.Others_option}
+                      value={othersOptionInput}
                       onChange={(e) => handleChange(e)}
-                      disabled={formData.updates !== 'Others'}
                     />
                   ) : (
                     'Others'
                   )}
+
                 </span>
               </label>
             </div>
