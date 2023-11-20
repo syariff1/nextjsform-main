@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { db } from "~/server/db";
 const handleError = (error: Error, message: string) => {
@@ -11,11 +11,44 @@ const handleError = (error: Error, message: string) => {
 };
 
 export const formRouter = createTRPCRouter({
-  formslist: publicProcedure.query(async () => {
-    const forms = await db.forms.findMany();
-    return forms;
-  }),
-  formsCreate: publicProcedure
+  // formslist: publicProcedure.query(async () => {
+  //   const forms = await db.forms.findMany();
+  //   return forms;
+  // }),
+  formslist: protectedProcedure
+    .query(async ({ ctx }) => {
+        try {
+            const forms = await db.forms.findMany({
+              where: {
+                createdById: ctx.session.user.id
+              }
+            });
+            return forms;
+        } catch (err) {
+            handleError(err as Error, "Failed to find Form objects");
+            throw err; // Rethrow the error after handling it
+        }
+    }),
+    formSelectByID: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const form = await db.forms.findUniqueOrThrow({
+          where: {
+            id: input.id,
+            createdById: ctx.session.user.id
+          },
+        });
+        return form;
+      } catch (err) {
+        handleError(err as Error, "Failed to find Form object");
+      }
+    }),
+  formsCreate: protectedProcedure
   .input(
     z.object({
       workout_title: z.string(),
@@ -28,9 +61,8 @@ export const formRouter = createTRPCRouter({
       form_image: z.string(),
     }),
   )
-    .mutation(async (opts) => {
+    .mutation(async ({ ctx, input }) => {
       try {
-        const { input } = opts;
         const newForm = await db.forms.create({
           data: {
             workout_title: input.workout_title,
@@ -41,7 +73,7 @@ export const formRouter = createTRPCRouter({
             difficulty_rating: input.difficulty_rating,
             ongoing: input.ongoing,
             form_image: input.form_image,
-  
+            createdById: ctx.session.user.id
           },
         });
         return newForm;
@@ -49,7 +81,7 @@ export const formRouter = createTRPCRouter({
         handleError(err as Error, "Failed to create form");
       }
     }),
-  formsUpdate: publicProcedure
+  formsUpdate: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -63,10 +95,8 @@ export const formRouter = createTRPCRouter({
       form_image: z.string().optional(),
       }),
     )
-    .mutation(async (opts) => {
+    .mutation(async ({input}) => {
       try {
-        const { input } = opts;
-
         const updatedForm = await db.forms.update({
           where: { id: input.id },
           data: {
@@ -86,16 +116,14 @@ export const formRouter = createTRPCRouter({
         handleError(err as Error, "Failed to update form");
       }
     }),
-  formsDelete: publicProcedure
+  formsDelete: protectedProcedure
     .input(
       z.object({
         id: z.string(),
       }),
     )
-    .mutation(async (opts) => {
+    .mutation(async ({ input }) => {
       try {
-        const { input } = opts;
-
         const deletedForm = await db.forms.delete({
           where: { id: input.id },
         });
