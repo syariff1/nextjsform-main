@@ -1,7 +1,11 @@
 import { postRouter } from "~/server/api/routers/post";
 import { formRouter } from "~/server/api/routers/formsRouter";
 import { createTRPCRouter } from "~/server/api/trpc";
-
+import "@uploadthing/solid/styles.css";
+ 
+export default function Root() {
+  
+}
 /**
  * This is the primary router for your server.
  *
