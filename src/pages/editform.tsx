@@ -37,7 +37,11 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
     console.log("id:", id);
     const formContainer = useRef<HTMLDivElement>(null);
     const formDeleteMutation = api.form.formsDelete.useMutation();
-    const formEditMutation = api.form.formsUpdate.useMutation();
+    const formEditMutation = api.form.formsUpdate.useMutation({
+        onSuccess: () => {
+            router.push("/home")
+          },
+    });
 
     // Define a state to store the selected form data
     const [selectedForm, setSelectedForm] = useState<Form | null>(null);
@@ -198,10 +202,19 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
         setData((prevData) => ({ ...prevData, [fileType]: files }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle form submission logic here
-        console.log('Form data submitted:', data);
+    const submitForm = async (event: any) => {
+        event.preventDefault();
+        formEditMutation.mutate({
+            id: data.id,
+            workout_title: data.workout_title,
+            completion_date: data.completion_date,
+            workout_type: data.workout_type,
+            checkboxes: data.checkboxes,
+            updates: data.updates,
+            difficulty_rating: data.difficulty_rating,
+            ongoing: data.ongoing,
+            form_image: data.form_image,
+        })
     };
 
 
