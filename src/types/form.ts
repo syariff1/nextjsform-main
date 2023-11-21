@@ -5,6 +5,7 @@ interface Form {
   workout_type: string;
   checkboxes: string[];
   updates: string;
+  Others_option?: string;
   difficulty_rating: number;
   ongoing: boolean;
   form_image: string;

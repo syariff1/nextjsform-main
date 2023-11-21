@@ -7,7 +7,7 @@ import { Toaster, toast } from "sonner";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 
-const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
+const Form = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [data, setData] = useState<Form>({
     id: form.id,
@@ -28,18 +28,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
     function handleClickOutside(event: MouseEvent) {
       if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
         setIsEditing(false);
-      
-        formEditMutation.mutateAsync({
-          id: data.id,
-          workout_title: data.workout_title,
-          completion_date: data.completion_date,
-          workout_type: data.workout_type,
-          checkboxes: data.checkboxes,  // Assuming checkboxes is an array
-          updates: data.updates,
-          difficulty_rating: data.difficulty_rating,
-          ongoing: data.ongoing,
-          form_image: data.form_image,
-        }).then((result) => {
+        formEditMutation.mutateAsync({id: data.id,workout_title: data.workout_title}).then((result)=>{
           console.log(result);
         })
       }
@@ -51,13 +40,13 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
     };
   }, [formContainer,data]);
   const router = useRouter();
-  const handlePencilClick = () => {
 
-    // Push to another page
-    router.push('/editform'); 
+  const handleViewClick = () => {
+    // Push to the editform page with the id parameter
+    router.push(`/editform?id=${data.id}`);
   };
 
-  
+
   const handleDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const target = e.target as HTMLInputElement & HTMLTextAreaElement;
     //toast.message(e.target.value);
@@ -88,24 +77,68 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void })=>{
             className="w-full cursor-text p-2 font-bold"
             name="workout_title"
             value={data.workout_title}
-            
+            disabled={!isEditing}
+            onChange={handleDataChange}
           />
           <div className="flex items-center justify-center space-x-1">
           <PencilIcon
               className="h-4 w-4 cursor-pointer transition-all hover:text-gray-600"
-              onClick={() => {handlePencilClick}}
+              onClick={() => {setIsEditing(!isEditing);}}
               onFocus={(e) => toast.success("Focus!")}
             />
             <TrashIcon
               className="h-4 w-4 cursor-pointer transition-all hover:text-red-600"
               onClick={() => handleDelete(form.id)}
             />
+            <button
+              className="text-blue-500 cursor-pointer hover:underline"
+              onClick={handleViewClick}
+            >
+              View
+            </button>
+
           </div>
         </a>
-       
+
       </div>
     </>
   );
 };
 
 export default Form;
+
+// const [isEditing, setIsEditing] = useState<boolean>(false);
+// const formEditMutation = api.form.formsUpdate.useMutation();
+  // useEffect(() => {
+  //   function handleClickOutside(event: MouseEvent) {
+  //     if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
+  //       setIsEditing(false);
+
+  //       formEditMutation.mutateAsync({
+  //         id: data.id,
+  //         workout_title: data.workout_title,
+  //         completion_date: data.completion_date,
+  //         workout_type: data.workout_type,
+  //         checkboxes: data.checkboxes,  // Assuming checkboxes is an array
+  //         updates: data.updates,
+  //         difficulty_rating: data.difficulty_rating,
+  //         ongoing: data.ongoing,
+  //         form_image: data.form_image,
+  //       }).then((result) => {
+  //         console.log(result);
+  //       })
+  //     }
+  //   }
+
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [formContainer, data]);
+
+  // const handlePencilClick = () => {
+
+  //   // Push to another page
+  //   router.push('/editform'); 
+  // };
+

@@ -21,11 +21,6 @@ type FormData = {
   form_image: string;
 
 };
-type UploadFileResponse = {
-  url: string;
-  uploadedBy: string;
-  // ... other properties
-};
 
 const ProjectForm: React.FC = () => {
   const { data: sessionData, status } = useSession();
@@ -148,11 +143,16 @@ const ProjectForm: React.FC = () => {
 
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission logic here
+    e.preventDefault(); // Prevent the default form submission behavior
+    handleCreateForm();
     console.log('Form data submitted:', formData);
   };
-
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the default behavior of the Enter key
+    }
+  };
 
 
   return (
@@ -181,6 +181,7 @@ const ProjectForm: React.FC = () => {
               name="workout_title"
               value={formData.workout_title}
               onChange={(e) => handleChange(e)}
+              onKeyDown={handleKeyDown}
             />
           </div>
           <div className="space-y-2">
@@ -194,6 +195,7 @@ const ProjectForm: React.FC = () => {
                 name="completion_date"
                 value={formData.completion_date.toISOString().split('T')[0]}
                 onChange={(e) => handleDateChange(e)}
+                onKeyDown={handleKeyDown}
                 className="w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Select completion date"
               />
@@ -312,6 +314,7 @@ const ProjectForm: React.FC = () => {
                       name="Others_option"
                       value={othersOptionInput}
                       onChange={(e) => handleChange(e)}
+                      onKeyDown={handleKeyDown}
                     />
                   ) : (
                     'Others'
@@ -385,7 +388,8 @@ const ProjectForm: React.FC = () => {
             <button
               className="inline-flex items-center border:2px justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
               type="submit"
-              onClick={handleCreateForm}
+              onSubmit={handleSubmit} 
+              onKeyDown={handleKeyDown}
             >
               Submit
             </button>
