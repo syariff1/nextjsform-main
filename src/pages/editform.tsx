@@ -37,7 +37,11 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
     console.log("id:", id);
     const formContainer = useRef<HTMLDivElement>(null);
     const formDeleteMutation = api.form.formsDelete.useMutation();
-    const formEditMutation = api.form.formsUpdate.useMutation();
+    const formEditMutation = api.form.formsUpdate.useMutation({
+        onSuccess: () => {
+            router.push("/home")
+          },
+    });
 
     // Define a state to store the selected form data
     const [selectedForm, setSelectedForm] = useState<Form | null>(null);
@@ -69,59 +73,60 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
         });
     }, [form, selectedForm]);
 
-    const handleEditForm = useCallback(async () => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
-                formContainer.current.removeEventListener("mousedown", handleClickOutside);
+    // const handleEditForm = useCallback(async () => {
+    //     const handleClickOutside = (event: MouseEvent) => {
+    //         if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
+    //             formContainer.current.removeEventListener("mousedown", handleClickOutside);
 
-                // Your existing logic for form submission
-                const submitForm = async () => {
-                    try {
-                        const result = await formEditMutation.mutateAsync({
-                            id: data.id,
-                            workout_title: data.workout_title,
-                            completion_date: data.completion_date,
-                            workout_type: data.workout_type,
-                            checkboxes: data.checkboxes,
-                            updates: data.updates,
-                            difficulty_rating: data.difficulty_rating,
-                            ongoing: data.ongoing,
-                            form_image: data.form_image,
-                        });
+    //             // Your existing logic for form submission
+    //             const submitForm = async () => {
+    //                 event.preventDefault();
+    //                 try {
+    //                     const result = await formEditMutation.mutateAsync({
+    //                         id: data.id,
+    //                         workout_title: data.workout_title,
+    //                         completion_date: data.completion_date,
+    //                         workout_type: data.workout_type,
+    //                         checkboxes: data.checkboxes,
+    //                         updates: data.updates,
+    //                         difficulty_rating: data.difficulty_rating,
+    //                         ongoing: data.ongoing,
+    //                         form_image: data.form_image,
+    //                     });
 
-                        console.log(result);
+    //                     console.log(result);
 
-                        // Redirect to home page after successful submission
-                        router.push("/home");
-                    } catch (error) {
-                        console.error(error);
-                    }
-                };
+    //                     // Redirect to home page after successful submission
+    //                     router.push("/home");
+    //                 } catch (error) {
+    //                     console.error(error);
+    //                 }
+    //             };
 
-                submitForm();
-            }
-        };
+    //             submitForm();
+    //         }
+    //     };
 
-        document.addEventListener("mousedown", handleClickOutside);
+    //     document.addEventListener("mousedown", handleClickOutside);
 
-        // Return cleanup function
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [data, formContainer, formEditMutation, router]);
+    //     // Return cleanup function
+    //     return () => {
+    //         document.removeEventListener("mousedown", handleClickOutside);
+    //     };
+    // }, [data, formContainer, formEditMutation, router]);
 
 
     // Use the function in your component
-    useEffect(() => {
-        const cleanup = () => {
-            // Call your handleEditForm function here
-            handleEditForm();
-            // Add any other cleanup logic if needed
-        };
+    // useEffect(() => {
+    //     const cleanup = () => {
+    //         // Call your handleEditForm function here
+    //         handleEditForm();
+    //         // Add any other cleanup logic if needed
+    //     };
 
-        // Ensure cleanup is called when the component unmounts or when the dependencies change
-        return () => cleanup();
-    }, [formContainer, data, formEditMutation, setIsEditing]);
+    //     // Ensure cleanup is called when the component unmounts or when the dependencies change
+    //     return () => cleanup();
+    // }, [formContainer, data, formEditMutation, setIsEditing]);
 
     
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -227,10 +232,19 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
         setData((prevData) => ({ ...prevData, [fileType]: files }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle form submission logic here
-        console.log('Form data submitted:', data);
+    const submitForm = async (event: any) => {
+        event.preventDefault();
+        formEditMutation.mutate({
+            id: data.id,
+            workout_title: data.workout_title,
+            completion_date: data.completion_date,
+            workout_type: data.workout_type,
+            checkboxes: data.checkboxes,
+            updates: data.updates,
+            difficulty_rating: data.difficulty_rating,
+            ongoing: data.ongoing,
+            form_image: data.form_image,
+        })
     };
 
 
@@ -480,7 +494,7 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
                                 <button
                                     className="inline-flex items-center border:2px justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
                                     type="submit"
-                                    onClick={handleEditForm}
+                                    onClick={submitForm}
                                 >
                                     Submit
                                 </button>
