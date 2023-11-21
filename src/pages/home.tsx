@@ -63,7 +63,6 @@ export default function home() {
                 </div>
               </div>
             </div>
-
             <Forms forms={forms} />
           </main>
 

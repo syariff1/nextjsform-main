@@ -41,7 +41,8 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
   }, [formContainer,data]);
   const router = useRouter();
 
-  const handleViewClick = () => {
+  const handleEditClick = () => {
+    {setIsEditing(!isEditing);}
     // Push to the editform page with the id parameter
     router.push(`/editform?id=${data.id}`);
   };
@@ -83,19 +84,14 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
           <div className="flex items-center justify-center space-x-1">
           <PencilIcon
               className="h-4 w-4 cursor-pointer transition-all hover:text-gray-600"
-              onClick={() => {setIsEditing(!isEditing);}}
+              onClick={handleEditClick}
               onFocus={(e) => toast.success("Focus!")}
             />
             <TrashIcon
               className="h-4 w-4 cursor-pointer transition-all hover:text-red-600"
               onClick={() => handleDelete(form.id)}
             />
-            <button
-              className="text-blue-500 cursor-pointer hover:underline"
-              onClick={handleViewClick}
-            >
-              View
-            </button>
+            
 
           </div>
         </a>
