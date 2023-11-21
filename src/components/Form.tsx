@@ -26,19 +26,17 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
   const formEditMutation = api.form.formsUpdate.useMutation();
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
-        setIsEditing(false);
-        formEditMutation.mutateAsync({id: data.id,workout_title: data.workout_title}).then((result)=>{
-          console.log(result);
-        })
-      }
+        if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
+            setIsEditing(false);
+        }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [formContainer,data]);
+}, [formContainer]);
   const router = useRouter();
 
   const handleEditClick = () => {

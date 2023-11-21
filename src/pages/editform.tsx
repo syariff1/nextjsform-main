@@ -70,58 +70,29 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
     }, [form, selectedForm]);
 
     const handleEditForm = useCallback(async () => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (formContainer.current && !formContainer.current.contains(event.target as Node)) {
-                formContainer.current.removeEventListener("mousedown", handleClickOutside);
-
-                // Your existing logic for form submission
-                const submitForm = async () => {
-                    try {
-                        const result = await formEditMutation.mutateAsync({
-                            id: data.id,
-                            workout_title: data.workout_title,
-                            completion_date: data.completion_date,
-                            workout_type: data.workout_type,
-                            checkboxes: data.checkboxes,
-                            updates: data.updates,
-                            difficulty_rating: data.difficulty_rating,
-                            ongoing: data.ongoing,
-                            form_image: data.form_image,
-                        });
-
-                        console.log(result);
-
-                        // Redirect to home page after successful submission
-                        router.push("/home");
-                    } catch (error) {
-                        console.error(error);
-                    }
-                };
-
-                submitForm();
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-
-        // Return cleanup function
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [data, formContainer, formEditMutation, router]);
-
-
-    // Use the function in your component
-    useEffect(() => {
-        const cleanup = () => {
-            // Call your handleEditForm function here
-            handleEditForm();
-            // Add any other cleanup logic if needed
-        };
-
-        // Ensure cleanup is called when the component unmounts or when the dependencies change
-        return () => cleanup();
-    }, [formContainer, data, formEditMutation, setIsEditing]);
+        try {
+            // Use the formEditMutation to update the form in the database
+            const result = await formEditMutation.mutateAsync({
+                id: data.id,
+                workout_title: data.workout_title,
+                completion_date: data.completion_date,
+                workout_type: data.workout_type,
+                checkboxes: data.checkboxes,
+                updates: data.updates,
+                difficulty_rating: data.difficulty_rating,
+                ongoing: data.ongoing,
+                form_image: data.form_image,
+            });
+    
+            // Log the result if needed
+            console.log(result);
+    
+            // Redirect to home page after successful submission
+            router.push("/home");
+        } catch (error) {
+            console.error(error);
+        }
+    }, [data, formEditMutation, router]);
 
     
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -480,7 +451,10 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
                                 <button
                                     className="inline-flex items-center border:2px justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
                                     type="submit"
-                                    onClick={handleEditForm}
+                                    onClick={() => {
+                                        handleEditForm();
+                                        router.push("/home");
+                                    }}
                                 >
                                     Submit
                                 </button>
