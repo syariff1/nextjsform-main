@@ -5,7 +5,6 @@ import Header from "../components/Header";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { UploadDropzone } from "~/utils/uploadthing";
-import { boolean } from 'zod';
 import type Form from '~/types/form';
 import "@uploadthing/react/styles.css";
 
