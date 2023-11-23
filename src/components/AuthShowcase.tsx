@@ -1,37 +1,52 @@
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
+import { useEffect, useState } from 'react';
 
-export async function AuthShowcase() {
+export function AuthShowcase() {
   const router = useRouter();
   const { data: sessionData } = useSession();
+  const [secretMessage, setSecretMessage] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
-  // Use try-catch to handle errors
-  try {
-    // Await the promise returned by useQuery
-    const { data: secretMessage } = await api.post.getSecretMessage.useQuery(
-      undefined,
-      { enabled: sessionData?.user !== undefined }
-    );
-
-    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-
-      // Check if the user is already signed in
-      if (sessionData) {
-        router.push('/home'); // Redirect to the home page if already signed in
-      } else {
-        // If not signed in, initiate the sign-in process
-        await signIn('your-provider', { callbackUrl: '/home' });
+  useEffect(() => {
+    const fetchSecretMessage = async () => {
+      try {
+        const { data } = await api.post.getSecretMessage.useQuery(undefined, {
+          enabled: sessionData?.user !== undefined,
+        });
+        setSecretMessage(data || null); // Ensure `data` is not undefined
+      } catch (err: any) {
+        setError(err);
       }
     };
 
-    return (
-      <div className="flex flex-col items-center justify-center gap-4">
-        <p className="text-center text-2xl text-white">
-          {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-          {secretMessage && <span> - {secretMessage}</span>}
-        </p>
+    if (sessionData?.user !== undefined) {
+      fetchSecretMessage();
+    }
+  }, [sessionData]);
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Check if the user is already signed in
+    if (sessionData) {
+      router.push('/home'); // Redirect to the home page if already signed in
+    } else {
+      // If not signed in, initiate the sign-in process
+      await signIn('your-provider', { callbackUrl: '/home' });
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <p className="text-center text-2xl text-white">
+        {sessionData && <span>Logged in as {sessionData.user?.name || 'Unknown'}</span>}
+        {secretMessage !== null && <span> - {secretMessage}</span>}
+      </p>
+      {error ? (
+        <p>Error loading secret message</p>
+      ) : (
         <form onSubmit={handleFormSubmit}>
           <button
             type="submit"
@@ -40,11 +55,7 @@ export async function AuthShowcase() {
             {sessionData ? 'Go to Home' : 'Sign in'}
           </button>
         </form>
-      </div>
-    );
-  } catch (error) {
-    // Handle errors here
-    console.error('Error fetching secret message:', error);
-    return <p>Error loading secret message</p>;
-  }
+      )}
+    </div>
+  );
 }
