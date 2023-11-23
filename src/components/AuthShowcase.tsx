@@ -6,43 +6,45 @@ export async function AuthShowcase() {
   const router = useRouter();
   const { data: sessionData } = useSession();
 
-  // Use async here
-  const { data: secretMessage, error } = await api.post.getSecretMessage.useQuery(
-    undefined,
-    { enabled: sessionData?.user !== undefined }
-  );
+  // Use try-catch to handle errors
+  try {
+    // Await the promise returned by useQuery
+    const { data: secretMessage } = await api.post.getSecretMessage.useQuery(
+      undefined,
+      { enabled: sessionData?.user !== undefined }
+    );
 
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
 
-    // Check if the user is already signed in
-    if (sessionData) {
-      router.push('/home'); // Redirect to the home page if already signed in
-    } else {
-      // If not signed in, initiate the sign-in process
-      await signIn('your-provider', { callbackUrl: '/home' });
-    }
-  };
+      // Check if the user is already signed in
+      if (sessionData) {
+        router.push('/home'); // Redirect to the home page if already signed in
+      } else {
+        // If not signed in, initiate the sign-in process
+        await signIn('your-provider', { callbackUrl: '/home' });
+      }
+    };
 
-  // Check for errors
-  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4">
+        <p className="text-center text-2xl text-white">
+          {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
+          {secretMessage && <span> - {secretMessage}</span>}
+        </p>
+        <form onSubmit={handleFormSubmit}>
+          <button
+            type="submit"
+            className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+          >
+            {sessionData ? 'Go to Home' : 'Sign in'}
+          </button>
+        </form>
+      </div>
+    );
+  } catch (error) {
+    // Handle errors here
+    console.error('Error fetching secret message:', error);
     return <p>Error loading secret message</p>;
   }
-
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
-      </p>
-      <form onSubmit={handleFormSubmit}>
-        <button
-          type="submit"
-          className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        >
-          {sessionData ? 'Go to Home' : 'Sign in'}
-        </button>
-      </form>
-    </div>
-  );
 }
