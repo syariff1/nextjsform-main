@@ -57,7 +57,7 @@ const ProjectForm: React.FC = () => {
       console.error("Error creating form:", err);
     }
   };
-  const handleUploadComplete = (res: any) => {
+  const handleUploadComplete = (res: any[]) => {
     // Assuming that the response contains the image URL
     const imageUrl = res?.[0]?.url || ''; // Adjust this based on the actual response structure
     // Update the form data with the image URL
@@ -88,7 +88,7 @@ const ProjectForm: React.FC = () => {
     if (name === 'updates') {
       setUpdatesOption(value); // Update the separate state for radio button selection
       if (value === 'Others') {
-        setOthersOptionInput(formData.Others_option || ''); // Use an empty string if Others_option is undefined
+        setOthersOptionInput(formData.Others_option ?? ''); // Use an empty string if Others_option is undefined
         setFormData((prevData) => ({ ...prevData, updates: 'Others' }));
       } else {
         setFormData((prevData) => ({ ...prevData, updates: value }));

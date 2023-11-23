@@ -6,6 +6,7 @@ import { PencilIcon } from "@heroicons/react/24/solid";
 import { Toaster, toast } from "sonner";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
+import { any, number } from "zod";
 
 const Form = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -63,7 +64,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
       });
     } catch (error) {
       console.error("Error deleting form:", error);
-      toast.message("Error deleting form:" + {error});
+      toast.message("Error deleting form:" + error);
     }
   }
 

@@ -117,16 +117,17 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
     }
     const handleUploadComplete = (res: any) => {
         // Assuming that the response contains the image URL
-        const imageUrl = res?.[0]?.url || ''; // Adjust this based on the actual response structure
+        const imageUrl = (res?.[0] as { url?: string })?.url ?? '';
         // Update the form data with the image URL
         setData((prevData) => ({
-            ...prevData,
-            form_image: imageUrl || '', // Use empty string if URL is not available
+          ...prevData,
+          form_image: imageUrl || '', // Use empty string if URL is not available
         }));
-
+      
         // Additional logic or state updates if needed
         alert('Upload Completed');
-    };
+      };
+      
     const handleUploadError = (error: Error) => {
         // Handle the error as needed
         alert(`ERROR! ${error.message}`);
@@ -204,19 +205,28 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
 
     const submitForm = async (event: any) => {
         event.preventDefault();
-        formEditMutation.mutate({
-            id: data.id,
-            workout_title: data.workout_title,
-            completion_date: data.completion_date,
-            workout_type: data.workout_type,
-            checkboxes: data.checkboxes,
-            updates: data.updates,
-            difficulty_rating: data.difficulty_rating,
-            ongoing: data.ongoing,
-            form_image: data.form_image,
-        })
+        
+        try {
+            // Assuming formEditMutation.mutate returns a promise
+            await formEditMutation.mutate({
+                id: data.id,
+                workout_title: data.workout_title,
+                completion_date: data.completion_date,
+                workout_type: data.workout_type,
+                checkboxes: data.checkboxes,
+                updates: data.updates,
+                difficulty_rating: data.difficulty_rating,
+                ongoing: data.ongoing,
+                form_image: data.form_image,
+            });
+    
+            // Additional logic after the mutation is successful
+        } catch (error) {
+            // Handle any errors that occurred during the mutation
+            console.error('Mutation error:', error);
+        }
     };
-
+    
 
 
     return (
