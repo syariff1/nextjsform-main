@@ -5,10 +5,12 @@ import { api } from '~/utils/api';
 export function AuthShowcase() {
   const router = useRouter();
   const { data: sessionData } = useSession();
-  const { data: secretMessage } = api.post.getSecretMessage.useQuery(
-    undefined,
-    { enabled: sessionData?.user !== undefined }
-  );
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+const { data: secretMessage } = api.post.getSecretMessage.useQuery(
+  undefined,
+  { enabled: sessionData?.user !== undefined }
+);
+
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
