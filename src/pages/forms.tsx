@@ -1,4 +1,4 @@
-import type Form from "~/types/Form";
+import type Form from "~/types/form";
 import React, { useState, useEffect } from "react";
 import { default as FormViewer } from "~/components/Form";
 

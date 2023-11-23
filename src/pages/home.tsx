@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Forms from "./forms";
-import type Form from "~/types/Form";
+import type Form from "~/types/form";
 import { api } from "~/utils/api";
 import Link from "next/link";
 import Head from "next/head";
