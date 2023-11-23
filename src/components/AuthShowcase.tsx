@@ -2,12 +2,10 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
 
-export async function AuthShowcase() {
+export function AuthShowcase() {
   const router = useRouter();
   const { data: sessionData } = useSession();
-
-  // Use async here
-  const { data: secretMessage } = await api.post.getSecretMessage.useQuery(
+  const { data: secretMessage } = api.post.getSecretMessage.useQuery(
     undefined,
     { enabled: sessionData?.user !== undefined }
   );
