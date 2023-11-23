@@ -63,7 +63,7 @@ const Form = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
       });
     } catch (error) {
       console.error("Error deleting form:", error);
-      toast.message("Error deleting form:" + error);
+      toast.message("Error deleting form:" + {error});
     }
   }
 
