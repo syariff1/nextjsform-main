@@ -2,27 +2,27 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
 
-export function AuthShowcase() {
+export async function AuthShowcase() {
   const router = useRouter();
   const { data: sessionData } = useSession();
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-const { data: secretMessage } = api.post.getSecretMessage.useQuery(
-  undefined,
-  { enabled: sessionData?.user !== undefined }
-);
 
+  // Use async here
+  const { data: secretMessage } = await api.post.getSecretMessage.useQuery(
+    undefined,
+    { enabled: sessionData?.user !== undefined }
+  );
 
-const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  // Check if the user is already signed in
-  if (sessionData) {
-    router.push('/home'); // Redirect to the home page if already signed in
-  } else {
-    // If not signed in, initiate the sign-in process
-    await signIn('your-provider', { callbackUrl: '/home' });
-  }
-};
+    // Check if the user is already signed in
+    if (sessionData) {
+      router.push('/home'); // Redirect to the home page if already signed in
+    } else {
+      // If not signed in, initiate the sign-in process
+      await signIn('your-provider', { callbackUrl: '/home' });
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
