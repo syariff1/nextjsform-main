@@ -2,10 +2,12 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
 
-export function AuthShowcase() {
+export async function AuthShowcase() {
   const router = useRouter();
   const { data: sessionData } = useSession();
-  const { data: secretMessage } = api.post.getSecretMessage.useQuery(
+
+  // Use async here
+  const { data: secretMessage, error } = await api.post.getSecretMessage.useQuery(
     undefined,
     { enabled: sessionData?.user !== undefined }
   );
@@ -21,6 +23,11 @@ export function AuthShowcase() {
       await signIn('your-provider', { callbackUrl: '/home' });
     }
   };
+
+  // Check for errors
+  if (error) {
+    return <p>Error loading secret message</p>;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
