@@ -1,3 +1,4 @@
+import { Session } from 'next-auth';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
@@ -13,49 +14,28 @@ export function AuthShowcase() {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Check if the user is already signed in
-    if (sessionData) {
+    // Use type assertion to tell TypeScript that sessionData is of type Session
+    if (sessionData as Session) {
       router.push('/home'); // Redirect to the home page if already signed in
     } else {
+      try {
+        // Use await here
+        const { data: secretMessage } = await api.post.getSecretMessage.useQuery(
+          undefined,
+          { enabled: sessionData?.user !== undefined }
+        );
+
+        // Continue with the rest of your logic
+        console.log('Secret Message:', secretMessage);
+      } catch (error) {
+        console.error('Error loading secret message:', error);
+        // Handle the error, e.g., display an error message to the user
+      }
+
       // If not signed in, initiate the sign-in process
       await signIn('your-provider', { callbackUrl: '/home' });
     }
   };
 
-  // Check for errors
-  if (error) {
-    console.error('Error loading secret message:', error);
-    // Handle the error, e.g., display an error message to the user
-    return (
-      <div className="flex flex-col items-center justify-center gap-4">
-        <p className="text-center text-2xl text-red-500">Error loading secret message</p>
-        <form onSubmit={handleFormSubmit}>
-          <button
-            type="submit"
-            className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-          >
-            {sessionData ? 'Go to Home' : 'Sign in'}
-          </button>
-        </form>
-      </div>
-    );
-  }
-
-  // Render the component with the loaded data
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
-      </p>
-      <form onSubmit={handleFormSubmit}>
-        <button
-          type="submit"
-          className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        >
-          {sessionData ? 'Go to Home' : 'Sign in'}
-        </button>
-      </form>
-    </div>
-  );
+  // Rest of your code...
 }
