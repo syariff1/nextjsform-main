@@ -12,17 +12,17 @@ const { data: secretMessage } = api.post.getSecretMessage.useQuery(
 );
 
 
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    // Check if the user is already signed in
-    if (sessionData) {
-      router.push('/home'); // Redirect to the home page if already signed in
-    } else {
-      // If not signed in, initiate the sign-in process
-      await signIn('your-provider', { callbackUrl: '/home' });
-    }
-  };
+  // Check if the user is already signed in
+  if (sessionData) {
+    router.push('/home'); // Redirect to the home page if already signed in
+  } else {
+    // If not signed in, initiate the sign-in process
+    await signIn('your-provider', { callbackUrl: '/home' });
+  }
+};
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
