@@ -59,24 +59,20 @@ const ProjectForm: React.FC = () => {
   };
 
 
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
-
   const handleUploadComplete = (res: any[]) => {
     // Assuming that the response contains the image URL
     const imageUrl = res?.[0]?.url || ''; // Adjust this based on the actual response structure
-    // Set the uploaded image URL for rendering
-    setUploadedImageUrl(imageUrl || '');
+    // Update the form data with the image URL
+    setFormData((prevData) => ({
+      ...prevData,
+      form_image: imageUrl || '', // Use empty string if URL is not available
+    }));
     // Additional logic or state updates if needed
     alert('Upload Completed');
   };
-
   const handleUploadError = (error: Error) => {
     // Handle the error as needed
     alert(`ERROR! ${error.message}`);
-  };
-  const handleResetUpload = () => {
-    // Reset the uploaded image URL when going back to upload dropzone
-    setUploadedImageUrl(null);
   };
 
 
@@ -378,20 +374,15 @@ const ProjectForm: React.FC = () => {
                   Postworkout Selfie
                 </label>
                 <div>
-                  {uploadedImageUrl ? (
-                    <div>
-                      <p>Image Preview:</p>
-                      <img src={uploadedImageUrl} alt="Uploaded Preview" style={{ maxWidth: '30%', height: 'auto' }} />
-                      <button className="block mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onClick={handleResetUpload} >Upload Another Image</button>
-                    </div>
-                  ) : (
-                    <UploadDropzone
-                      className="bg-slate-800 ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300"
-                      endpoint="imageUploader"
-                      onClientUploadComplete={handleUploadComplete}
-                      onUploadError={handleUploadError}
-                    />
-                  )}
+                <div>
+              <UploadDropzone
+                className="bg-slate-800 ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300"
+                endpoint="imageUploader"
+                onClientUploadComplete={handleUploadComplete}
+                onUploadError={handleUploadError}
+              />
+            </div>
+                  
                 </div>
               </div>
 
