@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { UploadDropzone } from "~/utils/uploadthing";
-import type Form from '~/types/form';
+import type Form from '~/types/Form';
 import "@uploadthing/react/styles.css";
 import Link from 'next/link';
 
@@ -40,7 +40,7 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
     const formEditMutation = api.form.formsUpdate.useMutation({
         onSuccess: () => {
             router.push("/home")
-          },
+        },
     });
 
     // Define a state to store the selected form data
@@ -87,10 +87,10 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
                 ongoing: data.ongoing,
                 form_image: data.form_image,
             });
-    
+
             // Log the result if needed
             console.log(result);
-    
+
             // Redirect to home page after successful submission
             router.push("/home");
         } catch (error) {
@@ -98,7 +98,7 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
         }
     }, [data, formEditMutation, router]);
 
-    
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent the default behavior of the Enter key
@@ -115,23 +115,26 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
             //   toast.message("Error deleting form:" + error);
         }
     }
-    const handleUploadComplete = (res: any) => {
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+
+    const handleUploadComplete = (res: any[]) => {
         // Assuming that the response contains the image URL
-        const imageUrl = (res?.[0] as { url?: string })?.url ?? '';
-        // Update the form data with the image URL
-        setData((prevData) => ({
-          ...prevData,
-          form_image: imageUrl || '', // Use empty string if URL is not available
-        }));
-      
+        const imageUrl = res?.[0]?.url || ''; // Adjust this based on the actual response structure
+        // Set the uploaded image URL for rendering
+        setUploadedImageUrl(imageUrl || '');
         // Additional logic or state updates if needed
         alert('Upload Completed');
-      };
-      
+    };
+
     const handleUploadError = (error: Error) => {
         // Handle the error as needed
         alert(`ERROR! ${error.message}`);
     };
+    const handleResetUpload = () => {
+        // Reset the uploaded image URL when going back to upload dropzone
+        setUploadedImageUrl(null);
+    };
+
 
     const [updatesOption, setUpdatesOption] = useState('no'); // Maintain a separate state for radio button selection
     const [othersOptionInput, setOthersOptionInput] = useState('');
@@ -205,7 +208,7 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
 
     const submitForm = async (event: any) => {
         event.preventDefault();
-        
+
         try {
             // Assuming formEditMutation.mutate returns a promise
             await formEditMutation.mutate({
@@ -219,14 +222,14 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
                 ongoing: data.ongoing,
                 form_image: data.form_image,
             });
-    
+
             // Additional logic after the mutation is successful
         } catch (error) {
             // Handle any errors that occurred during the mutation
             console.error('Mutation error:', error);
         }
     };
-    
+
 
 
     return (
@@ -450,12 +453,20 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
                                     Postworkout Selfie
                                 </label>
                                 <div>
-                                    <UploadDropzone
-                                        className="bg-slate-800 ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300"
-                                        endpoint="imageUploader"
-                                        onClientUploadComplete={handleUploadComplete}
-                                        onUploadError={handleUploadError}
-                                    />
+                                    {uploadedImageUrl ? (
+                                        <div>
+                                            <p>Image Preview:</p>
+                                            <img src={uploadedImageUrl} alt="Uploaded Preview" style={{ maxWidth: '30%', height: 'auto' }} />
+                                            <button className="block mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onClick={handleResetUpload} >Upload Another Image</button>
+                                        </div>
+                                    ) : (
+                                        <UploadDropzone
+                                            className="bg-slate-800 ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300"
+                                            endpoint="imageUploader"
+                                            onClientUploadComplete={handleUploadComplete}
+                                            onUploadError={handleUploadError}
+                                        />
+                                    )}
                                 </div>
                             </div>
 
@@ -493,369 +504,5 @@ const EditForm = ({ form, onDelete }: { form: Form, onDelete: () => void }) => {
 };
 export default EditForm;
 
-// export default EditForm;
-
-// import { useState, useEffect } from 'react';
-// import { useRouter } from 'next/router';
-// import { api } from '~/utils/api';
-// import type Form from '~/types/Form'; // Adjust the path based on your project structure
-
-// const EditFormPage = () => {
-//   const router = useRouter();
-//   const { id } = router.query;
-
-//   const [form, setForm] = useState<Form | null>(null);
-
-//   const { data: formData } = api.form.formSelectByID.useQuery({ id: id as string }) as { data: Form };
-
-//   useEffect(() => {
-//     // Update the state with the form data when it changes
-//     if (formData) {
-//       setForm(formData);
-//     }
-//   }, [formData]);
-
-//   // Render loading, error, or the actual form content based on the state
-//   if (!form) {
-//     // You might want to add loading state here
-//     return <div>Loading...</div>;
-//   }
-
-//   return (
-//     <div>
-//       <h1>Edit Form</h1>
-//       {/* Render the form content here using the `form` state */}
-//       {/* Example: */}
-//       <p>ID: {form.id}</p>
-//       <p>Title: {form.workout_title}</p>
-//       <p>Date of Workout Completed: {form.completion_date.toISOString().split('T')[0]}</p>
-//       <p>Type of workout : {form.workout_type} </p>
-//       <p>Muscles hit : {form.checkboxes}</p>
-//       <p>Do you think this workout is easy? : {form.updates} </p>
-//       <p>Difficulty_level : {form.difficulty_rating}</p>
-//       <p>Would you do this workout again?: {form.ongoing} </p>
-//       <p> Postworkout Selfie : {form.form_image}</p>
 
 
-//       {/* Add other form fields here */}
-//     </div>
-//   );
-// };
-
-// export default EditFormPage;
-
-// import { useEffect, useState } from 'react';
-// import { useRouter } from 'next/router';
-// import { api } from '~/utils/api';
-// import type Form from '~/types/Form'; // Adjust the path based on your project structure
-// import Head from "next/head";
-// import Header from "../components/Header";
-
-// const EditFormPage = () => {
-//   const router = useRouter();
-//   const { id } = router.query;
-
-//   const [form, setForm] = useState<Form | null>(null);
-
-//   const { data: formData } = api.form.formSelectByID.useQuery({ id: id as string }) as { data: Form };
-
-//   // Update the state with the form data when it changes
-//   useEffect(() => {
-//     if (formData) {
-//       setForm(formData);
-//     }
-//   }, [formData]);
-
-//   // State to manage the form fields
-//   const [updatedForm, setUpdatedForm] = useState<Form>({
-//     id: '',
-//     workout_title: '',
-//     completion_date: new Date(),
-//     workout_type: '',
-//     checkboxes: [],
-//     updates: '',
-//     difficulty_rating: 0,
-//     ongoing: false,
-//     form_image: '',
-//   });
-
-//   // Handle form field changes
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-//     const { name, value } = e.target;
-//     setUpdatedForm((prevData) => ({ ...prevData, [name]: value }));
-//   };
-
-//   // Handle form submission
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     try {
-//       // Send an API request to update the form data in the database
-//       await api.form.formsUpdate.mutateAsync({
-//         id: id as string,
-//         updatedForm,
-//       });
-
-//       // Redirect the user to the page displaying the updated form
-//       router.push(`/form/${id}`);
-//     } catch (error) {
-//       console.error('Error updating form:', error);
-//     }
-//   };
-
-//   // Render loading, error, or the actual form content based on the state
-//   if (!form) {
-//     // You might want to add a loading state here
-//     return <div>Loading...</div>;
-//   }
-
-//   return (
-//     <>
-//     {sessionData ? (
-//         <>
-//       <Head>
-//         <title>Home | Create a form</title>
-//         <meta name="description" content="Generated by create-t3-app" />
-//         <link rel="icon" href="/favicon.ico" />
-//       </Head>
-//       <Header />
-
-//       <div className="flex justify-center items-center py-7 mx-10">
-//         <form className="w-2/3 space-y-6" onSubmit={handleSubmit}>
-
-//           <div className="space-y-2 mt-5">
-//             <label className="text-4xl font-large bold leading-none" htmlFor="workout_title">
-//               {formData.workout_title || 'Workout Title'}
-//             </label>
-//             <input
-//               type="text"
-//               id="workout_title"
-//               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-//               placeholder={`Enter ${formData.workout_title ? 'additional ' : ''}workout title`}
-//               name="workout_title"
-//               value={formData.workout_title}
-//               onChange={(e) => handleChange(e)}
-//               onKeyDown={handleKeyDown}
-//             />
-//           </div>
-//           <div className="space-y-2">
-//             <label className="text-lg font-bold leading-none" htmlFor="completion_date">
-//               Date of Workout Completed
-//             </label>
-//             <div className="mt-2">
-//               <input
-//                 type="date"
-//                 id="completion_date"
-//                 name="completion_date"
-//                 value={formData.completion_date.toISOString().split('T')[0]}
-//                 onChange={(e) => handleDateChange(e)}
-//                 onKeyDown={handleKeyDown}
-//                 className="w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-//                 placeholder="Select completion date"
-//               />
-//             </div>
-//           </div>
-
-//           <div className="space-y-2 mt-5">
-//             <label className="text-lg font-bold leading-none" htmlFor="workout_type">
-//               Type of workout
-//             </label>
-//             <select
-//               id="workout_type"
-//               name="workout_type"
-//               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-//               value={formData.workout_type}
-//               onChange={(e) => handleChange(e)}
-//             >
-//               <option value="Cardio">Cardio</option>
-//               <option value="Weightlifting">Weightlifting</option>
-//               <option value="Bodylifting">Bodylifting</option>
-//               <option value="Crossfit">Crossfit</option>
-
-//             </select>
-//           </div>
-
-//           <div className="space-y-2 mt-5">
-//             <label className="text-lg font-bold leading-none">Muscles hit</label>
-//             <div className="space-y-2">
-//               <label className="flex items-center">
-//                 <input
-//                   type="checkbox"
-//                   name="Leg"
-//                   checked={formData.checkboxes.includes('Leg')}
-//                   onChange={(e) => handleCheckboxChange(e)}
-//                 />
-//                 Leg
-//               </label>
-//               <label className="flex items-center">
-//                 <input
-//                   type="checkbox"
-//                   name="Upper Body"
-//                   checked={formData.checkboxes.includes('Upper Body')}
-//                   onChange={(e) => handleCheckboxChange(e)}
-//                 />
-//                 Upper Body
-//               </label>
-//               <label className="flex items-center">
-//                 <input
-//                   type="checkbox"
-//                   name="Lower Body"
-//                   checked={formData.checkboxes.includes('Lower Body')}
-//                   onChange={(e) => handleCheckboxChange(e)}
-//                 />
-//                 Lower Body
-//               </label>
-//               <label className="flex items-center">
-//                 <input
-//                   type="checkbox"
-//                   name="Abs"
-//                   checked={formData.checkboxes.includes('Abs')}
-//                   onChange={(e) => handleCheckboxChange(e)}
-//                 />
-//                 Abs
-//               </label>
-//             </div>
-//           </div>
-
-//           <div className="space-y-2 mt-5">
-//             <label className="text-lg bold font-bold leading-none">Do you think this workout is easy? </label>
-//             <div className="flex flex-col">
-//               <label className="mb-2">
-//                 <input
-//                   type="radio"
-//                   name="updates"
-//                   value="yes"
-//                   checked={formData.updates === 'yes'}
-//                   onChange={(e) => handleChange(e)}
-//                 />
-//                 Yes
-//               </label>
-//               <label className="mb-2">
-//                 <input
-//                   type="radio"
-//                   name="updates"
-//                   value="no"
-//                   checked={formData.updates === 'no'}
-//                   onChange={(e) => handleChange(e)}
-//                 />
-//                 No
-//               </label>
-//               <label className="mb-2">
-//                 <input
-//                   type="radio"
-//                   name="updates"
-//                   value="maybe"
-//                   checked={formData.updates === 'maybe'}
-//                   onChange={(e) => handleChange(e)}
-//                 />
-//                 Maybe
-//               </label>
-//               <label className="mb-2 flex items-center">
-//                 <input
-//                   type="radio"
-//                   name="updates"
-//                   value="Others"
-//                   checked={updatesOption === 'Others'}
-//                   onChange={(e) => handleChange(e)}
-//                 />
-//                 <span className="ml-2">
-//                   {updatesOption === 'Others' ? (
-//                     <input
-//                       type="text"
-//                       id="Others_option"
-//                       className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-//                       placeholder="Enter Others"
-//                       name="Others_option"
-//                       value={othersOptionInput}
-//                       onChange={(e) => handleChange(e)}
-//                       onKeyDown={handleKeyDown}
-//                     />
-//                   ) : (
-//                     'Others'
-//                   )}
-
-//                 </span>
-//               </label>
-//             </div>
-//           </div>
-
-//           <div className="space-y-2 mt-5">
-//             <label className="text-lg mx-auto font-bold leading-none">Difficulty Rating</label>
-//             <div className="flex items-center space-x-2">
-//               <input
-//                 type="range"
-//                 id="difficulty_rating"
-//                 name="difficulty_rating"
-//                 min="0"
-//                 max="10"
-//                 step="1"
-//                 value={formData.difficulty_rating}
-//                 onChange={(e) => handleChange(e)}
-//                 className="w-full"
-//               />
-//               <span>{formData.difficulty_rating}</span>
-//             </div>
-//           </div>
-
-//           <div className="space-y-2 mt-5">
-//             <label className="flex items-center">
-//               <span className="relative text-lg font-bold">Would you do this workout again?</span>
-//               <input
-//                 type="checkbox"
-//                 name="ongoing"
-//                 checked={formData.ongoing}
-//                 onChange={(e) => handleOngoingChange(e)}
-//                 className="sr-only"
-//               />
-//               <span
-//                 className={`${formData.ongoing ? 'bg-gray-700' : 'bg-gray-300'
-//                   } relative ml-auto inline-block h-5 w-11  rounded-full transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700`}
-//               >
-//                 {/* Switch handle */}
-//                 <span
-//                   className={`${formData.ongoing ? 'translate-x-5' : 'translate-x-0'
-//                     } inline-block h-5 w-5 rounded-full bg-white shadow-lg transform ring-0 transition-transform ease-in-out duration-200`}
-//                 />
-//               </span>
-//             </label>
-//           </div>
-
-//           <div className="space-y-2 mt-5">
-//             <label className="text-lg font-bold  leading-none" >
-//               Postworkout Selfie
-//             </label>
-//             <div>
-//               <UploadDropzone
-//                 className="bg-slate-800 ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300"
-//                 endpoint="imageUploader"
-//                 onClientUploadComplete={handleUploadComplete}
-//                 onUploadError={handleUploadError}
-//               />
-//             </div>
-//           </div>
-
-
-//           <div className="flex items-center justify-center gap-x-3 mt-5">
-//             <a className="inline-flex items-center justify-center rounded-md text-sm font-medium" href="/home">
-//               Discard
-//             </a>
-//             <button
-//               className="inline-flex items-center border:2px justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
-//               type="submit"
-//               onSubmit={handleSubmit}
-//               onKeyDown={handleKeyDown}
-//             >
-//               Submit
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//       </>
-//       ) : (
-//         "href = /index"
-//       )}
-//       </>
-//   );
-// };
-
-// export default EditFormPage;

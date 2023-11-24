@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import Forms from "./forms";
-import type Form from "~/types/form";
+import type Form from "~/types/Form";
 import { api } from "~/utils/api";
 import Link from "next/link";
 import Head from "next/head";
