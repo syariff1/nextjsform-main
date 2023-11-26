@@ -12,6 +12,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.7",
     "@auth/core": "^0.18.1",
     "@heroicons/react": "^2.0.18",
     "@hookform/resolvers": "^3.3.2",

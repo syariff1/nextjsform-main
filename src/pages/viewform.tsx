@@ -11,7 +11,7 @@ import Link from 'next/link';
 
 
 
-const EditForm = ({ form }: { form: Form }) => {
+const ViewForm = ({ form }: { form: Form }) => {
     const router = useRouter();
     useEffect(() => {
         const fetchData = async () => {
@@ -23,7 +23,7 @@ const EditForm = ({ form }: { form: Form }) => {
         fetchData();
     }, []);
 
-    
+    console.log('Form:', form);
 
 
     // Define a state to store the form data
@@ -39,15 +39,14 @@ const EditForm = ({ form }: { form: Form }) => {
         ongoing: false,
         form_image: '',
     });
-
+    
 
     // Get the 'id' from the router query
     const { id } = router.query;
-    console.log({id})
 
     // Fetch the selected form data using useQuery
     const { data: selectedFormData } = id ? api.form.formSelectByID.useQuery({ id: id as string }) as { data: Form } : { data: null };
-    
+    const [selectedImage, setSelectedImage] = useState<string | undefined>(data.form_image || undefined);
 
     // Update the state with the selected form data when it changes
     useEffect(() => {
@@ -57,37 +56,13 @@ const EditForm = ({ form }: { form: Form }) => {
     }, [selectedFormData]);
 
     // Define a mutation for updating the form data
-    const formEditMutation = api.form.formsUpdate.useMutation();
-
-    // Handle the form submission
-    const handleEditForm = async () => {
-        try {
-            // Use the formEditMutation to update the form in the database
-            const result = await formEditMutation.mutateAsync({
-                id: data.id,
-                workout_title: data.workout_title,
-                completion_date: data.completion_date,
-                workout_type: data.workout_type,
-                checkboxes: data.checkboxes,
-                updates: data.updates,
-                difficulty_rating: data.difficulty_rating,
-                ongoing: data.ongoing,
-                form_image: data.form_image,
-            });
-
-            // Redirect to the home page after successful form submission
-            router.push('/home');
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent the default behavior of the Enter key
         }
     };
-    const [selectedImage, setSelectedImage] = useState<string | undefined>(data.form_image || undefined);
     const handleUploadComplete = (res: any) => {
         // Assuming that the response contains the image URL
         const imageUrl = res?.[0]?.url || '';
@@ -105,16 +80,17 @@ const EditForm = ({ form }: { form: Form }) => {
         alert('Upload Completed');
     };
 
-    const handleUploadError = (error: Error) => {
+    
+      const handleUploadError = (error: Error) => {
         // Handle the error as needed
         alert(`ERROR! ${error.message}`);
-    };
+      };
     const handleClearImage = () => {
         setData((prevData) => ({
-            ...prevData,
-            form_image: '', // Clear the form_image property
+          ...prevData,
+          form_image: '', // Clear the form_image property
         }));
-    };
+      };
 
     const [updatesOption, setUpdatesOption] = useState('no'); // Maintain a separate state for radio button selection
     const [othersOptionInput, setOthersOptionInput] = useState('');
@@ -128,13 +104,11 @@ const EditForm = ({ form }: { form: Form }) => {
 
         if (name === 'updates') {
             setUpdatesOption(value); // Update the separate state for radio button selection
-            if (data.updates !== null) {
-                if (value === 'Others') {
-                    setOthersOptionInput(data.Others_option ?? ''); // Use an empty string if Others_option is undefined
-                    setData((prevData) => ({ ...prevData, updates: 'Others' }));
-                } else {
-                    setData((prevData) => ({ ...prevData, updates: value }));
-                }
+            if (value === 'Others') {
+                setOthersOptionInput(data.Others_option ?? ''); // Use an empty string if Others_option is undefined
+                setData((prevData) => ({ ...prevData, updates: 'Others' }));
+            } else {
+                setData((prevData) => ({ ...prevData, updates: value }));
             }
         } else if (name === 'Others_option') {
             setOthersOptionInput(value);
@@ -148,7 +122,6 @@ const EditForm = ({ form }: { form: Form }) => {
                 [name]: name === 'difficulty_rating' ? parseInt(value, 10) : value,
             }));
         }
-
     };
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
@@ -212,6 +185,7 @@ const EditForm = ({ form }: { form: Form }) => {
                             value={data.workout_title}
                             onChange={(e) => handleChange(e)}
                             onKeyDown={handleKeyDown}
+                            disabled  
                         />
                     </div>
                     <div className="space-y-2">
@@ -228,6 +202,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                 onKeyDown={handleKeyDown}
                                 className="w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                 placeholder="Select completion date"
+                                disabled  
                             />
                         </div>
                     </div>
@@ -242,6 +217,7 @@ const EditForm = ({ form }: { form: Form }) => {
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             value={data.workout_type}
                             onChange={(e) => handleChange(e)}
+                            disabled  
                         >
                             <option value="Cardio">Cardio</option>
                             <option value="Weightlifting">Weightlifting</option>
@@ -260,6 +236,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                     name="Leg"
                                     checked={data.checkboxes.includes('Leg')}
                                     onChange={(e) => handleCheckboxChange(e)}
+                                    disabled  
                                 />
                                 Leg
                             </label>
@@ -269,6 +246,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                     name="Upper Body"
                                     checked={data.checkboxes.includes('Upper Body')}
                                     onChange={(e) => handleCheckboxChange(e)}
+                                    disabled  
                                 />
                                 Upper Body
                             </label>
@@ -278,6 +256,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                     name="Lower Body"
                                     checked={data.checkboxes.includes('Lower Body')}
                                     onChange={(e) => handleCheckboxChange(e)}
+                                    disabled  
                                 />
                                 Lower Body
                             </label>
@@ -287,6 +266,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                     name="Abs"
                                     checked={data.checkboxes.includes('Abs')}
                                     onChange={(e) => handleCheckboxChange(e)}
+                                    disabled  
                                 />
                                 Abs
                             </label>
@@ -303,6 +283,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                     value="yes"
                                     checked={data.updates === 'yes'}
                                     onChange={(e) => handleChange(e)}
+                                    disabled  
                                 />
                                 Yes
                             </label>
@@ -313,6 +294,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                     value="no"
                                     checked={data.updates === 'no'}
                                     onChange={(e) => handleChange(e)}
+                                    disabled  
                                 />
                                 No
                             </label>
@@ -323,38 +305,36 @@ const EditForm = ({ form }: { form: Form }) => {
                                     value="maybe"
                                     checked={data.updates === 'maybe'}
                                     onChange={(e) => handleChange(e)}
+                                    disabled  
                                 />
                                 Maybe
                             </label>
                             <label className="mb-2 flex items-center">
-                                {/* {data.updates !== null && data.updates !== "maybe" && data.updates !== "yes" && data.updates !== "no" ? ( */}
-                                    <input
-                                        type="radio"
-                                        name="updates"
-                                        value="Others"
-                                        checked={data.updates !== null && data.updates !== "maybe" && data.updates !== "yes" && data.updates !== "no" }
-                                        onChange={(e) => handleChange(e)}
-                                    />
-                                {/* ) : ( */}
-                                    <span className="ml-2">
-                                        {data.updates !== null && data.updates !== "maybe" && data.updates !== "yes" && data.updates !== "no"  ? (
-                                            <input
-                                                type="text"
-                                                id="Others_option"
-                                                className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                placeholder={data.updates}
-                                                name="Others_option"
-                                                value={othersOptionInput}
-                                                onChange={(e) => handleChange(e)}
-                                                onKeyDown={handleKeyDown}
-                                            />
-                                        ) : (
-                                            'Others'
-                                        )}
-                                    </span>
-                                {/* )} */}
-
-
+                                <input
+                                    type="radio"
+                                    name="updates"
+                                    value="Others"
+                                    checked={updatesOption === 'Others'}
+                                    onChange={(e) => handleChange(e)}
+                                    disabled  
+                                />
+                                <span className="ml-2">
+                                    {updatesOption === 'Others' ? (
+                                        <input
+                                            type="text"
+                                            id="Others_option"
+                                            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            placeholder="Enter Others"
+                                            name="Others_option"
+                                            value={othersOptionInput}
+                                            onChange={(e) => handleChange(e)}
+                                            onKeyDown={handleKeyDown}
+                                            disabled  
+                                        />
+                                    ) : (
+                                        'Others'
+                                    )}
+                                </span>
                             </label>
                         </div>
                     </div>
@@ -372,6 +352,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                 value={data.difficulty_rating}
                                 onChange={(e) => handleChange(e)}
                                 className="w-full"
+                                disabled  
                             />
                             <span>{data.difficulty_rating}</span>
                         </div>
@@ -386,6 +367,7 @@ const EditForm = ({ form }: { form: Form }) => {
                                 checked={data.ongoing}
                                 onChange={(e) => handleOngoingChange(e)}
                                 className="sr-only"
+                                disabled  
                             />
                             <span
                                 className={`${data.ongoing ? 'bg-gray-700' : 'bg-gray-300'
@@ -399,7 +381,11 @@ const EditForm = ({ form }: { form: Form }) => {
                             </span>
                         </label>
                     </div>
-                    {data.form_image !== null && (
+
+                    <div className="space-y-2 mt-5">
+                <label className="text-lg font-bold leading-none">Postworkout Selfie</label>
+                
+                {data.form_image !== null && (
                         <div className="mt-5">
                             <span>Prev Image</span>
                             <img
@@ -410,7 +396,7 @@ const EditForm = ({ form }: { form: Form }) => {
                         </div>
                     )}
 
-                    {selectedImage && (
+                    { selectedImage && (
                         <div className="mt-5">
                             <span>New Image</span>
                             <img
@@ -419,39 +405,24 @@ const EditForm = ({ form }: { form: Form }) => {
                                 className="max-w-full max-h-48 mx-auto mb-2"
                             />
                         </div>
-                    )}
-
-                    <div className="space-y-2 mt-5">
-                        <label className="text-lg font-bold leading-none">Postworkout Selfie</label>
-                        <div>
-                            <UploadDropzone
-                                className="bg-slate-800 ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300"
-                                endpoint="imageUploader"
-                                onClientUploadComplete={handleUploadComplete}
-                                onUploadError={handleUploadError}
-                            />
-                        </div>
-
+                    )}   
+                    
                     </div>
-                    <div className="flex items-center justify-center gap-x-3 mt-5">
-                        <Link className="inline-flex items-center justify-center rounded-md text-sm font-medium" href="/home">
-                            Discard
-                        </Link>
-
+                    <div className="flex items-center justify-center gap-x-3 mt-5">                      
                         <button
                             className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                             type="submit"
-                            onClick={() => {
-                                handleEditForm();
+                            onClick={() => {                         
                                 router.push("/home");
                             }}
                         >
-                            Submit
+                            Return
                         </button>
                     </div>
+                    
                 </form>
             </div>
         </>
     );
 };
-export default EditForm;
+export default ViewForm;
